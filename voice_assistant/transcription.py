@@ -1,5 +1,7 @@
 # voice_assistant/transcription.py
 
+import os
+import traceback
 import json
 import logging
 import requests
@@ -46,6 +48,8 @@ def transcribe_audio(model, api_key, audio_file_path, local_model_path=None):
             return _transcribe_with_groq(api_key, audio_file_path)
         elif model == 'deepgram':
             return _transcribe_with_deepgram(api_key, audio_file_path)
+        elif model == 'gemini':
+            return _transcribe_with_gemini(api_key,audio_file_path)
         elif model == 'fastwhisperapi':
             return _transcribe_with_fastwhisperapi(audio_file_path)
         elif model == 'local':
@@ -55,6 +59,7 @@ def transcribe_audio(model, api_key, audio_file_path, local_model_path=None):
             raise ValueError("Unsupported transcription model")
     except Exception as e:
         logging.error(f"{Fore.RED}Failed to transcribe audio: {e}{Fore.RESET}")
+        traceback.print_exc()
         raise Exception("Error in transcribing audio")
 
 def _transcribe_with_openai(api_key, audio_file_path):
@@ -74,7 +79,8 @@ def _transcribe_with_groq(api_key, audio_file_path):
         transcription = client.audio.transcriptions.create(
             model="whisper-large-v3",
             file=audio_file,
-            language='en'
+            # language='en'
+            language='ta'
         )
     return transcription.text
 
@@ -113,3 +119,40 @@ def _transcribe_with_fastwhisperapi(audio_file_path):
     response = requests.post(endpoint, files=files, data=data, headers=headers)
     response_json = response.json()
     return response_json.get('text', 'No text found in the response.')
+
+
+from pathlib import Path
+import base64
+import litellm
+
+
+def _transcribe_with_gemini(api_key,audio_file_path):    
+    model = os.environ["GEMINI_MODEL"]
+    audio_bytes = Path(audio_file_path).read_bytes()
+    encoded_data = base64.b64encode(audio_bytes).decode("utf-8")
+
+    response = litellm.completion(
+        model=model,
+        api_key=api_key,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Just transcribe the Tamil audio. If no audio is detected, just say '<empty>'."},
+                    {
+                        "type": "image_url",
+                        "image_url": "data:audio/mp3;base64,{}".format(encoded_data), # 👈 SET MIME_TYPE + DATA
+                    },
+                ],
+            }
+        ],
+    )
+    return response.choices[0].message.content
+
+
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+    load_dotenv()
+    os.environ["GEMINI_MODEL"] = "gemini/gemini-1.5-flash-002"
+    # print(_transcribe_with_gemini(os.environ["GEMINI_API_KEY"],"test_cropped.mp3"))
+    print(_transcribe_with_groq(os.environ["GROQ_API_KEY"],"test_cropped.mp3"))

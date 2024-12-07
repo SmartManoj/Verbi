@@ -1,7 +1,9 @@
 # voice_assistant/response_generation.py
 
 import logging
+import os
 
+import litellm
 from openai import OpenAI
 from groq import Groq
 import ollama
@@ -25,6 +27,8 @@ def generate_response(model:str, api_key:str, chat_history:list, local_model_pat
     try:
         if model == 'openai':
             return _generate_openai_response(api_key, chat_history)
+        elif model == 'gemini':
+            return _generate_gemini_response(chat_history)
         elif model == 'groq':
             return _generate_groq_response(api_key, chat_history)
         elif model == 'ollama':
@@ -62,3 +66,19 @@ def _generate_ollama_response(chat_history):
         messages=chat_history,
     )
     return response['message']['content']
+
+
+def _generate_gemini_response(chat_history):  
+    model = os.environ["GEMINI_MODEL"]
+    
+    response = litellm.completion(
+        model=model,
+        messages=chat_history,
+    )
+    return response.choices[0].message.content
+
+    
+if __name__ == "__main__":
+    msg = ' நாபத்திரண்டும் எம்பத்திரண்டும் எத்தனை?'
+    os.environ["GEMINI_MODEL"] = "gemini/gemini-1.5-flash-002"
+    print(_generate_gemini_response([ {"role": "user", "content": msg}]))

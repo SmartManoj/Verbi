@@ -21,9 +21,9 @@ class Config:
         LOCAL_MODEL_PATH (str): Path to the local model.
     """
     # Model selection
-    TRANSCRIPTION_MODEL = 'deepgram'  # possible values: openai, groq, deepgram, fastwhisperapi
-    RESPONSE_MODEL = 'openai'  # possible values: openai, groq, ollama
-    TTS_MODEL = 'openai'  # possible values: openai, deepgram, elevenlabs, melotts, cartesia
+    TRANSCRIPTION_MODEL = 'groq'  # possible values: openai, groq, deepgram, fastwhisperapi
+    RESPONSE_MODEL = 'gemini'  # possible values: openai, groq, ollama
+    TTS_MODEL = 'elevenlabs'  # possible values: openai, deepgram, elevenlabs, melotts, cartesia
 
     # currently using the MeloTTS for local models. here is how to get started:
     # https://github.com/myshell-ai/MeloTTS/blob/main/docs/install.md#linux-and-macos-install
@@ -38,6 +38,7 @@ class Config:
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
     ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     LOCAL_MODEL_PATH = os.getenv("LOCAL_MODEL_PATH")
     CARTESIA_API_KEY = os.getenv("CARTESIA_API_KEY")
 

@@ -6,7 +6,8 @@ API_KEY_MAPPING= {
     "transcription":{
         "openai": Config.OPENAI_API_KEY,
         "groq": Config.GROQ_API_KEY,
-        "deepgram": Config.DEEPGRAM_API_KEY
+        "deepgram": Config.DEEPGRAM_API_KEY,
+        "gemini": Config.GEMINI_API_KEY,
     },
     "response":{
         "openai":Config.OPENAI_API_KEY,

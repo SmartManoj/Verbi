@@ -51,9 +51,9 @@ def text_to_speech(model: str, api_key:str, text:str, output_file_path:str, loca
             client = ElevenLabs(api_key=api_key)
             audio = client.generate(
                 text=text, 
-                voice="Paul J.", 
+                voice="Nila - Warm & Expressive Tamil Voice", 
                 output_format="mp3_22050_32", 
-                model="eleven_turbo_v2"
+                model="eleven_turbo_v2_5"
             )
             elevenlabs.save(audio, output_file_path)
         

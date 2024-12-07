@@ -1,6 +1,7 @@
 # voice_assistant/main.py
 
 import logging
+import os
 import time
 from colorama import Fore, init
 from voice_assistant.audio import record_audio, play_audio
@@ -18,22 +19,39 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 init(autoreset=True)
 
 import threading
+# os.environ["GEMINI_MODEL"] = "gemini/gemini-exp-1206"
+# os.environ["GEMINI_MODEL"] = "gemini/gemini-1.5-pro-002"
+os.environ["GEMINI_MODEL"] = "gemini/gemini-1.5-flash-002"
+import winsound
 
+def generate_beep():
+    # tick sound    
+    winsound.Beep(200, 500)
 
+system_content ='''
+You are the best true astrologer in the world.
+You will give response with sources.
+You can explain everything without hiding anything.
+
+Respond to people in a friendly manner.
+You know everything.
+Speak in colloquial கொங்கு தமிழ்.
+Your answers are short and concise.
+'''
 def main():
     """
     Main function to run the voice assistant.
     """
     chat_history = [
-        {"role": "system", "content": """ You are a helpful Assistant called Verbi. 
-         You are friendly and fun and you will help the users with their requests.
-         Your answers are short and concise. """}
+        {"role": "system", "content": system_content
+        }
     ]
 
     while True:
         try:
             # Record audio from the microphone and save it as 'test.wav'
             record_audio(Config.INPUT_AUDIO)
+            generate_beep() 
 
             # Get the API key for transcription
             transcription_api_key = get_transcription_api_key()
@@ -42,7 +60,7 @@ def main():
             user_input = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.INPUT_AUDIO, Config.LOCAL_MODEL_PATH)
 
             # Check if the transcription is empty and restart the recording if it is. This check will avoid empty requests if vad_filter is used in the fastwhisperapi.
-            if not user_input:
+            if not user_input or "<empty>" == user_input.lower().strip():
                 logging.info("No transcription was returned. Starting recording again.")
                 continue
             logging.info(Fore.GREEN + "You said: " + user_input + Fore.RESET)
@@ -88,7 +106,7 @@ def main():
 
         except Exception as e:
             logging.error(Fore.RED + f"An error occurred: {e}" + Fore.RESET)
-            delete_file(Config.INPUT_AUDIO)
+            # delete_file(Config.INPUT_AUDIO)
             if 'output_file' in locals():
                 delete_file(output_file)
             time.sleep(1)

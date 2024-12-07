@@ -8,6 +8,9 @@ import pydub
 from io import BytesIO
 from pydub import AudioSegment
 from functools import lru_cache
+import winsound
+def generate_beep():
+    winsound.Beep(200, 500)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -48,6 +51,7 @@ def record_audio(file_path, timeout=10, phrase_time_limit=None, retries=3, energ
                 logging.info("Calibrating for ambient noise...")
                 recognizer.adjust_for_ambient_noise(source, duration=calibration_duration)
                 logging.info("Recording started")
+                generate_beep()
                 # Listen for the first phrase and extract it into audio data
                 audio_data = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
                 logging.info("Recording complete")
